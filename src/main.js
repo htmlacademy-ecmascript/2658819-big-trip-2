@@ -3,21 +3,26 @@ import PointsModel from './model/points-model.js';
 import FilterView from './view/filter-view.js';
 import BoardPresenter from './presenter/board-presenter.js';
 
-// Находим места в разметке, куда будем вставлять компоненты
+// // 1. Находим контейнеры (Находим места в разметке, куда будем вставлять компоненты)
 const siteHeaderElement = document.querySelector('.trip-main');
 const siteFilterElement = siteHeaderElement.querySelector('.trip-controls__filters');
 const siteEventsElement = document.querySelector('.trip-events');
 
+// 2. Создаем экземпляр модели
 const pointsModel = new PointsModel();
 
-// Создаем экземпляр презентера, передав ему контейнер для отрисовки
+// 3. Создаем экземпляр презентера
 const boardPresenter = new BoardPresenter({
   boardContainer: siteEventsElement,
   pointsModel: pointsModel,
 });
 
-// Отрисовываем фильтры в шапку сайта (они не зависят от доски событий)
+// 4. Отрисовываем фильтры (они статичны и не ждут данных)
 render(new FilterView(), siteFilterElement);
 
-// Запускаем отрисовку доски (сортировка + список с формами и точками)
-boardPresenter.init();
+// 5. ЗАПУСК ПРИЛОЖЕНИЯ
+// Вызываем асинхронный init у модели.
+// Когда данные (моки) будут готовы, запускаем презентер.
+pointsModel.init().finally(() => {
+  boardPresenter.init();
+});

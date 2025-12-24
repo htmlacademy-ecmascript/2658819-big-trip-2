@@ -17,16 +17,35 @@ export default class BoardPresenter {
   }
 
   init() {
-    // Получаем данные из модели и сохраняем их в приватное поле
+    // 1. Подготавливаем данные
     this.#boardPoints = [...this.#pointsModel.points];
 
+    // 2. Вызываем рендеринг
+    this.#renderBoard();
+  }
+
+  // Вспомогательный приватный метод для отрисовки всей "доски"
+  #renderBoard() {
     render(new SortingView(), this.#boardContainer);
     render(this.#listComponent, this.#boardContainer);
-    // Формы пока оставляем без данных (или передаем первую точку для редактирования)
-    render(new PointEditView({point: this.#boardPoints[0]}), this.#listComponent.getElement());
+
+    // Отрисовываем форму редактирования для первой точки
+    if (this.#boardPoints.length > 0) {
+      render(new PointEditView({point: this.#boardPoints[0]}), this.#listComponent.getElement());
+    }
+
     render(new PointAddView(), this.#listComponent.getElement());
+
+    // Отрисовываем список точек
     for (let i = 0; i < this.#boardPoints.length; i++) {
-      render(new PointView({point: this.#boardPoints[i]}), this.#listComponent.getElement());
+      this.#renderPoint(this.#boardPoints[i]);
     }
   }
+
+  // Приватный метод для отрисовки одной точки
+  #renderPoint(point) {
+    const pointComponent = new PointView({point});
+    render(pointComponent, this.#listComponent.getElement());
+  }
 }
+
