@@ -7,23 +7,45 @@ import PointAddView from '../view/point-add-view.js';
 
 export default class BoardPresenter {
   #listComponent = new ListView();
+  #boardContainer = null;
+  #pointsModel = null;
+  #boardPoints = [];
 
-  constructor({boardContainer}) {
-    this.boardContainer = boardContainer;
+  constructor({boardContainer, pointsModel}) {
+    this.#boardContainer = boardContainer;
+    this.#pointsModel = pointsModel;
   }
 
   init() {
-    render(new SortingView(), this.boardContainer);
-    render(this.#listComponent, this.boardContainer);
+    // 1. Подготавливаем данные
+    this.#boardPoints = [...this.#pointsModel.points];
 
-    // Добавляем форму создания (например, второй в списке или первой)
+    // 2. Вызываем рендеринг
+    this.#renderBoard();
+  }
+
+  // Вспомогательный приватный метод для отрисовки всей "доски"
+  #renderBoard() {
+    render(new SortingView(), this.#boardContainer);
+    render(this.#listComponent, this.#boardContainer);
+
+    // Отрисовываем форму редактирования для первой точки
+    if (this.#boardPoints.length > 0) {
+      render(new PointEditView({point: this.#boardPoints[0]}), this.#listComponent.getElement());
+    }
+
     render(new PointAddView(), this.#listComponent.getElement());
 
-    // Форма редактирования ПЕРВОЙ (или после формы создания)
-    render(new PointEditView(), this.#listComponent.getElement());
-
-    for (let i = 0; i < 3; i++) {
-      render(new PointView(), this.#listComponent.getElement());
+    // Отрисовываем список точек
+    for (let i = 0; i < this.#boardPoints.length; i++) {
+      this.#renderPoint(this.#boardPoints[i]);
     }
   }
+
+  // Приватный метод для отрисовки одной точки
+  #renderPoint(point) {
+    const pointComponent = new PointView({point});
+    render(pointComponent, this.#listComponent.getElement());
+  }
 }
+
